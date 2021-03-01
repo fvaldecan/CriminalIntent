@@ -9,4 +9,5 @@ data class Crime(@PrimaryKey
     var title: String = "",
     var date: Date = Date(),
     var isSolved: Boolean = false
+//    var requiresPolice: Boolean = false
 )

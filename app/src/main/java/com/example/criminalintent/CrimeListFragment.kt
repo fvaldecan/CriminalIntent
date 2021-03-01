@@ -4,10 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.view.*
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -15,6 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
 import java.util.*
 
 private const val TAG = "CrimeListFragment"
@@ -117,11 +116,11 @@ class CrimeListFragment: Fragment() {
         : RecyclerView.Adapter<CrimeHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int)
                 : CrimeHolder {
-            val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
-//            val view = when(viewType) {
-//                1 -> layoutInflater.inflate(R.layout.police_required_item_crime, parent, false)
-//                else -> layoutInflater.inflate(R.layout.list_item_crime, parent, false)
-//            }
+//            val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
+            val view = when(viewType) {
+                1 -> layoutInflater.inflate(R.layout.police_required_item_crime, parent, false)
+                else -> layoutInflater.inflate(R.layout.list_item_crime, parent, false)
+            }
             return CrimeHolder(view)
 
         }
@@ -131,12 +130,12 @@ class CrimeListFragment: Fragment() {
         }
 
         override fun getItemCount() = crimes.size
-//        override fun getItemViewType(position: Int): Int {
-//            return when {
-//                crimes[position].requiresPolice -> 1
-//                else -> 0
-//            }
-//        }
+        override fun getItemViewType(position: Int): Int {
+            return when {
+                !crimes[position].isSolved -> 1
+                else -> 0
+            }
+        }
 
     }
     companion object {

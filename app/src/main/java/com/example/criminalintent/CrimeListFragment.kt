@@ -6,12 +6,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -94,7 +91,7 @@ class CrimeListFragment: Fragment() {
         private val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
         private val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
         private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
-          
+
         init {
             itemView.setOnClickListener(this)
         }
@@ -119,10 +116,11 @@ class CrimeListFragment: Fragment() {
         : RecyclerView.Adapter<CrimeHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int)
                 : CrimeHolder {
-            val view = when(viewType) {
-                0 -> layoutInflater.inflate(R.layout.list_item_crime, parent, false)
-                else -> layoutInflater.inflate(R.layout.police_required_item_crime, parent, false)
-            }
+            val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
+//            val view = when(viewType) {
+//                1 -> layoutInflater.inflate(R.layout.police_required_item_crime, parent, false)
+//                else -> layoutInflater.inflate(R.layout.list_item_crime, parent, false)
+//            }
             return CrimeHolder(view)
 
         }
@@ -132,12 +130,12 @@ class CrimeListFragment: Fragment() {
         }
 
         override fun getItemCount() = crimes.size
-        override fun getItemViewType(position: Int): Int {
-            return when {
-                crimes[position].requiresPolice -> 1
-                else -> 0
-            }
-        }
+//        override fun getItemViewType(position: Int): Int {
+//            return when {
+//                crimes[position].requiresPolice -> 1
+//                else -> 0
+//            }
+//        }
 
     }
     companion object {

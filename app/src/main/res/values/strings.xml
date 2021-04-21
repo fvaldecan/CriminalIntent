@@ -6,4 +6,5 @@
     <string name="crime_solved_label">Solved</string>
     <string name="contact_police">CONTACT POLICE</string>
     <string name="new_crime">New Crime</string>
+    <string name="camera_button_label">Camera</string>
 </resources>

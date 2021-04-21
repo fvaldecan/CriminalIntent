@@ -1,20 +1,27 @@
 package com.example.criminalintent
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import java.text.SimpleDateFormat
 import java.util.*
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import java.util.jar.Manifest
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
@@ -22,20 +29,24 @@ private const val DIALOG_DATE = "DialogDate"
 private const val REQUEST_DATE = 0
 private const val DIALOG_TIME = "DialogTime"
 private const val REQUEST_TIME = 1
+private const val REQUEST_CODE = 42
 
 class CrimeFragment : Fragment(),
     DatePickerFragment.Callbacks,
     TimePickerFragment.Callbacks {
 
     private lateinit var crime: Crime
+    private lateinit var crimeImage: ImageView
+    private lateinit var cameraButton: Button
     private lateinit var titleField: EditText
     private lateinit var dateButton: Button
     private lateinit var timeButton: Button
-
     private lateinit var solvedCheckBox: CheckBox
+
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProviders.of(this).get(CrimeDetailViewModel::class.java)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         crime = Crime()
@@ -49,6 +60,8 @@ class CrimeFragment : Fragment(),
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
+        crimeImage = view.findViewById(R.id.crime_image) as ImageView
+        cameraButton = view.findViewById(R.id.camera_button) as Button
         titleField = view.findViewById(R.id.crime_title) as EditText
         dateButton = view.findViewById(R.id.crime_date) as Button
         timeButton = view.findViewById(R.id.crime_time) as Button
@@ -56,6 +69,7 @@ class CrimeFragment : Fragment(),
 
         return view
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         crimeDetailViewModel.crimeLiveData.observe(
@@ -67,6 +81,7 @@ class CrimeFragment : Fragment(),
                 }
             })
     }
+
     override fun onStart() {
         super.onStart()
         val titleWatcher = object : TextWatcher {
@@ -92,6 +107,16 @@ class CrimeFragment : Fragment(),
                 // This one too
             }
         }
+        cameraButton.setOnClickListener {
+            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            // Check for camera
+            if (activity?.packageManager?.let { it1 -> takePictureIntent.resolveActivity(it1) } != null) {
+                startActivityForResult(takePictureIntent, REQUEST_CODE)
+            } else {
+                Toast.makeText(activity, "Unable to open camera", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         titleField.addTextChangedListener(titleWatcher)
         solvedCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
@@ -99,7 +124,6 @@ class CrimeFragment : Fragment(),
             }
         }
         dateButton.setOnClickListener {
-
             DatePickerFragment.newInstance(crime.date).apply {
                 setTargetFragment(this@CrimeFragment, REQUEST_DATE)
                 show(this@CrimeFragment.requireFragmentManager(), DIALOG_DATE)
@@ -112,6 +136,15 @@ class CrimeFragment : Fragment(),
             }
         }
     }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            crimeImage.setImageBitmap(imageBitmap)
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         crimeDetailViewModel.saveCrime(crime)
@@ -121,10 +154,12 @@ class CrimeFragment : Fragment(),
         crime.date = date
         updateUI()
     }
+
     override fun onTimeSelected(date: Date) {
         crime.date = date
         updateUI()
     }
+
     private fun updateUI() {
         titleField.setText(crime.title)
         val crimeDate = SimpleDateFormat("EEEE, MMM d, YYYY")
